@@ -15,32 +15,31 @@ public abstract class BankAccount {
     }
 
     public void deposit(double amount) {
-        if (amount <= 0) {
-            return;
-        }
+        // Теперь используем protected-метод
+        if (!isValidAmount(amount)) return;
         balance += amount;
     }
 
     public abstract boolean withdraw(double amount);
 
-    public double getBalance() {
-        return balance;
+    public double getBalance() { return balance; }
+    public String getNumber() { return number; }
+    public String getOwner() { return owner; }
+
+    // --- Методы, доступные только наследникам (protected) ---
+
+    /** Проверяет, что сумма больше нуля */
+    protected boolean isValidAmount(double amount) {
+        return amount > 0;
     }
 
-    public String getNumber() {
-        return number;
+    /** Проверяет, хватает ли средств для снятия (для обычного счёта) */
+    protected boolean canWithdraw(double amount) {
+        return isValidAmount(amount) && amount <= balance;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
-    // Защищённые методы для классов-наследников
+    /** Изменяет баланс (доступно только наследникам) */
     protected void decreaseBalance(double amount) {
         balance -= amount;
-    }
-
-    protected boolean canWithdraw(double amount) {
-        return amount > 0 && amount <= balance;
     }
 }

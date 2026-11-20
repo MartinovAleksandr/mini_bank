@@ -1,6 +1,7 @@
 package org.example;
 
 import bank.BankAccount;
+import bank.CreditAccount;
 import bank.DebitAccount;
 import bank.SavingsAccount;
 
@@ -24,6 +25,7 @@ public class Main {
         System.out.println("Выберите тип счёта:");
         System.out.println("1 - Дебетовый (DebitAccount)");
         System.out.println("2 - Сберегательный (SavingsAccount)");
+        System.out.println("3 - Кредитный (CreditAccount)"); // НОВОЕ
         int type = readInt(scanner);
 
         BankAccount account;
@@ -31,6 +33,10 @@ public class Main {
             System.out.print("Введите минимальный остаток: ");
             double minBalance = readDouble(scanner);
             account = new SavingsAccount(number, owner, balance, minBalance);
+        } else if (type == 3) { // НОВОЕ
+            System.out.print("Введите кредитный лимит: ");
+            double creditLimit = readDouble(scanner);
+            account = new CreditAccount(number, owner, balance, creditLimit);
         } else {
             account = new DebitAccount(number, owner, balance);
         }
@@ -80,7 +86,7 @@ public class Main {
     private static double readDouble(Scanner scanner) {
         while (true) {
             try {
-                return Double.parseDouble(scanner.nextLine().trim());
+                return Double.parseDouble(scanner.nextLine().trim().replace(',', '.'));
             } catch (NumberFormatException e) {
                 System.out.print("Введите число: ");
             }
