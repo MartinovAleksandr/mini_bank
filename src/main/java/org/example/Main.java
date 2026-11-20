@@ -1,4 +1,8 @@
-package bank;
+package org.example;
+
+import bank.BankAccount;
+import bank.DebitAccount;
+import bank.SavingsAccount;
 
 import java.util.Scanner;
 
