@@ -4,6 +4,7 @@ import bank.BankAccount;
 import bank.CreditAccount;
 import bank.DebitAccount;
 import bank.SavingsAccount;
+import bank.TransferService;
 
 import java.util.Scanner;
 
@@ -25,7 +26,7 @@ public class Main {
         System.out.println("Выберите тип счёта:");
         System.out.println("1 - Дебетовый (DebitAccount)");
         System.out.println("2 - Сберегательный (SavingsAccount)");
-        System.out.println("3 - Кредитный (CreditAccount)"); // НОВОЕ
+        System.out.println("3 - Кредитный (CreditAccount)");
         int type = readInt(scanner);
 
         BankAccount account;
@@ -33,7 +34,7 @@ public class Main {
             System.out.print("Введите минимальный остаток: ");
             double minBalance = readDouble(scanner);
             account = new SavingsAccount(number, owner, balance, minBalance);
-        } else if (type == 3) { // НОВОЕ
+        } else if (type == 3) {
             System.out.print("Введите кредитный лимит: ");
             double creditLimit = readDouble(scanner);
             account = new CreditAccount(number, owner, balance, creditLimit);
@@ -44,11 +45,14 @@ public class Main {
         System.out.println("\nСчёт создан: " + account.getOwner()
                 + " | Баланс: " + account.getBalance());
 
+        TransferService transferService = new TransferService();
+
         while (true) {
             System.out.println("\n--- МЕНЮ ---");
             System.out.println("1. Пополнить (deposit)");
             System.out.println("2. Снять (withdraw)");
             System.out.println("3. Показать баланс");
+            System.out.println("4. Сделать перевод (transfer)"); // НОВОЕ
             System.out.println("0. Выход");
             System.out.print("Выбор: ");
 
@@ -72,6 +76,33 @@ public class Main {
             }
             else if (choice == 3){
                 System.out.println("Текущий баланс: " + account.getBalance());
+            }
+            else if (choice == 4){
+                // Для простоты создадим получателя прямо здесь
+                System.out.println("--- Создание счёта получателя ---");
+                System.out.print("Введите номер счёта получателя: ");
+                String toNumber = scanner.nextLine();
+                if (toNumber.equals(account.getNumber())) {
+                    System.out.println("Ошибка: нельзя перевести на тот же самый счёт.");
+                    continue;
+                }
+
+                System.out.print("Введите имя получателя: ");
+                String toOwner = scanner.nextLine();
+                // Создадим обычный дебетовый счёт для получателя с балансом 0
+                BankAccount toAccount = new DebitAccount(toNumber, toOwner, 0);
+
+                System.out.print("Сумма перевода: ");
+                double amount = readDouble(scanner);
+
+                boolean success = transferService.transfer(account, toAccount, amount);
+                if (success) {
+                    System.out.println("Перевод успешно выполнен!");
+                    System.out.println("Ваш новый баланс: " + account.getBalance());
+                    System.out.println("Баланс получателя (" + toOwner + "): " + toAccount.getBalance());
+                } else {
+                    System.out.println("Перевод не удался (недостаточно средств или неверная сумма).");
+                }
             }
             else if (choice == 0){
                 System.out.println("Выход...");
