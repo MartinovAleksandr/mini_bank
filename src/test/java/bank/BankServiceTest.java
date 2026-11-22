@@ -150,6 +150,21 @@ class BankServiceTest {
     }
 
     @Test
+    void getAccountSummariesMapsAccounts() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
+        bankService.openAccount(new DebitAccount(number(1), "Alice", 100));
+        bankService.openAccount(new CreditAccount(number(2), "Bob", 200, 0));
+
+        List<AccountSummary> summaries = bankService.getAccountSummaries();
+
+        assertEquals(2, summaries.size());
+        assertEquals("DebitAccount", summaries.get(0).type());
+        assertEquals(100.0, summaries.get(0).balance(), 0.0001);
+        assertEquals("CreditAccount", summaries.get(1).type());
+    }
+
+    @Test
     void streamFilterMethodsReturnMatchingAccounts() {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
         BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
