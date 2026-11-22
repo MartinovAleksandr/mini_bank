@@ -27,6 +27,23 @@ class InMemoryRepositoryTest {
     }
 
     @Test
+    void existsByIdReturnsFalseForMissingId() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+
+        assertFalse(repository.existsById(number(1)));
+    }
+
+    @Test
+    void sizeIncreasesAfterSavingNewId() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+
+        repository.save(new DebitAccount(number(1), "Ivan", 1_000));
+        repository.save(new DebitAccount(number(2), "Petr", 2_000));
+
+        assertEquals(2, repository.size());
+    }
+
+    @Test
     void saveNullIsRejected() {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
 
@@ -51,6 +68,33 @@ class InMemoryRepositoryTest {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
 
         assertThrows(EntityNotFoundException.class, () -> repository.findById(number(1)));
+    }
+
+    @Test
+    void deleteByIdRemovesExistingObject() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        repository.save(new DebitAccount(number(1), "Ivan", 1_000));
+
+        boolean deleted = repository.deleteById(number(1));
+
+        assertTrue(deleted);
+        assertFalse(repository.existsById(number(1)));
+        assertEquals(0, repository.size());
+    }
+
+    @Test
+    void findAllReturnsAllSavedValues() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        DebitAccount first = new DebitAccount(number(1), "Ivan", 1_000);
+        DebitAccount second = new DebitAccount(number(2), "Petr", 2_000);
+        repository.save(first);
+        repository.save(second);
+
+        var all = repository.findAll();
+
+        assertEquals(2, all.size());
+        assertTrue(all.contains(first));
+        assertTrue(all.contains(second));
     }
 
     @Test
