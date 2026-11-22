@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AccountUtilsTest {
 
@@ -98,5 +100,38 @@ class AccountUtilsTest {
         AccountUtils.copy(source, target);
 
         assertEquals(source, target);
+    }
+
+    @Test
+    void richestReturnsAccountWithMaxBalance() {
+        DebitAccount first = new DebitAccount(number(1), "Ivan", 1_000);
+        DebitAccount second = new DebitAccount(number(2), "Petr", 5_000);
+        List<DebitAccount> accounts = List.of(first, second);
+
+        DebitAccount richest = AccountUtils.richest(accounts);
+
+        assertSame(second, richest);
+    }
+
+    @Test
+    void richestRejectsEmptyList() {
+        assertThrows(IllegalArgumentException.class, () -> AccountUtils.richest(List.of()));
+    }
+
+    @Test
+    void richestReturnsSingleAccount() {
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
+
+        assertSame(account, AccountUtils.richest(List.of(account)));
+    }
+
+    @Test
+    void richestReturnsFirstWhenBalancesAreEqual() {
+        DebitAccount first = new DebitAccount(number(1), "Ivan", 2_000);
+        DebitAccount second = new DebitAccount(number(2), "Petr", 2_000);
+
+        DebitAccount richest = AccountUtils.richest(List.of(first, second));
+
+        assertSame(first, richest);
     }
 }
