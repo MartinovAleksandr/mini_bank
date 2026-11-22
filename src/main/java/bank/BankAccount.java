@@ -1,5 +1,7 @@
 package bank;
 
+import java.util.Objects;
+
 public abstract class BankAccount {
     private final String number;
     private final String owner;
@@ -41,6 +43,22 @@ public abstract class BankAccount {
     /** Изменяет баланс (доступно только наследникам) */
     protected void decreaseBalance(double amount) {
         balance -= amount;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BankAccount other)) {
+            return false;
+        }
+        return Objects.equals(number, other.number);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number);
     }
 
     @Override
