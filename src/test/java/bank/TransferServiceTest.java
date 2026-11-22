@@ -61,6 +61,17 @@ class TransferServiceTest {
     }
 
     @Test
+    void failedTransferWithCommissionDoesNotChangeBalances() {
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_050);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 2_000);
+
+        assertThrows(InsufficientFundsException.class,
+                () -> service(new PercentCommission(1)).transfer(from, to, 10_000));
+        assertEquals(10_050, from.getBalance(), DELTA);
+        assertEquals(2_000, to.getBalance(), DELTA);
+    }
+
+    @Test
     void negativeTransferThrowsException() {
         DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
