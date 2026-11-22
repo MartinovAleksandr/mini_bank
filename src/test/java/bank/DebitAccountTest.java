@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DebitAccountTest {
@@ -31,20 +32,18 @@ class DebitAccountTest {
     }
 
     @Test
-    void zeroDepositDoesNotChangeBalance() {
+    void zeroDepositThrowsException() {
         DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
-        account.deposit(0);
-
+        assertThrows(IllegalArgumentException.class, () -> account.deposit(0));
         assertEquals(1_000, account.getBalance(), DELTA);
     }
 
     @Test
-    void negativeDepositDoesNotChangeBalance() {
+    void negativeDepositThrowsException() {
         DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
-        account.deposit(-100);
-
+        assertThrows(IllegalArgumentException.class, () -> account.deposit(-100));
         assertEquals(1_000, account.getBalance(), DELTA);
     }
 

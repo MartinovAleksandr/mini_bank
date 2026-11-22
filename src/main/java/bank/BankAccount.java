@@ -17,9 +17,10 @@ public abstract class BankAccount {
     }
 
     public void deposit(double amount) {
-        // Теперь используем protected-метод
-        if (!isValidAmount(amount)) return;
-        balance += amount;
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        increaseBalance(amount);
     }
 
     public abstract boolean withdraw(double amount);
@@ -38,6 +39,11 @@ public abstract class BankAccount {
     /** Проверяет, хватает ли средств для снятия (для обычного счёта) */
     protected boolean canWithdraw(double amount) {
         return isValidAmount(amount) && amount <= balance;
+    }
+
+    /** Изменяет баланс (доступно только наследникам) */
+    protected void increaseBalance(double amount) {
+        balance += amount;
     }
 
     /** Изменяет баланс (доступно только наследникам) */

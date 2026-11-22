@@ -79,8 +79,12 @@ public class Main {
             if (choice == 1){
                 System.out.print("Сумма для пополнения: ");
                 double dep = readDouble(scanner);
-                account.deposit(dep);
-                System.out.println("Баланс после пополнения: " + account.getBalance());
+                try {
+                    account.deposit(dep);
+                    System.out.println("Баланс после пополнения: " + account.getBalance());
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Ошибка: " + e.getMessage());
+                }
             }
             else if (choice == 2){
                 System.out.print("Сумма для снятия: ");
