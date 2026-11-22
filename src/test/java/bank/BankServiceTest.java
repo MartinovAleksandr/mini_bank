@@ -165,6 +165,22 @@ class BankServiceTest {
     }
 
     @Test
+    void findFirstRichAccountOptional() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
+        bankService.openAccount(new DebitAccount(number(1), "A", 50_000));
+        DebitAccount rich = new DebitAccount(number(2), "B", 150_000);
+        bankService.openAccount(rich);
+
+        BankAccount found = bankService.findFirstRichAccount(100_000).orElseThrow(() -> new IllegalStateException("No rich account"));
+        assertSame(rich, found);
+        String label = bankService.findFirstRichAccount(100_000).map(a -> a.getId().value()).orElse("not found");
+        assertEquals("0000000002", label);
+        assertEquals("not found", bankService.findFirstRichAccount(1_000_000).map(a -> a.getId().value()).orElse("not found"));
+        assertTrue(bankService.findFirstRichAccount(1_000_000).isEmpty());
+    }
+
+    @Test
     void shortCircuitMatchMethods() {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
         BlockedAccountRegistry registry = new BlockedAccountRegistry();
