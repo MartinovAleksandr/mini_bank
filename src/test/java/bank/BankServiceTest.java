@@ -150,6 +150,24 @@ class BankServiceTest {
     }
 
     @Test
+    void streamFilterMethodsReturnMatchingAccounts() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
+        DebitAccount d1 = new DebitAccount(number(1), "Alice", 100_000);
+        CreditAccount c1 = new CreditAccount(number(2), "Bob", 50_000, 0);
+        DebitAccount d2 = new DebitAccount(number(3), "Alice", 10_000);
+        bankService.openAccount(d1);
+        bankService.openAccount(c1);
+        bankService.openAccount(d2);
+
+        assertEquals(List.of(d1), bankService.findRichAccounts(100_000));
+        assertEquals(List.of(d1, d2), bankService.findDebitAccounts());
+        assertEquals(List.of(d1, d2), bankService.findAccountsByOwner("Alice"));
+        assertTrue(new BankService(new InMemoryRepository<>(), new TransferService(new NoCommission(), message -> {}))
+                .findRichAccounts(1).isEmpty());
+    }
+
+    @Test
     void findAccountsSupportsPredicateComposition() {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
         BlockedAccountRegistry blocked = new BlockedAccountRegistry();
