@@ -2,6 +2,7 @@ package bank;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,5 +32,33 @@ class AccountUtilsTest {
                 new DebitAccount(number(2), "Petr", 2_500));
 
         assertEquals(3_500, AccountUtils.totalBalance(accounts), DELTA);
+    }
+
+    @Test
+    void addDemoDebitAccountsAcceptsDebitAccountList() {
+        List<DebitAccount> target = new ArrayList<>();
+
+        AccountUtils.addDemoDebitAccounts(target);
+
+        assertEquals(2, target.size());
+        assertEquals(1_000, target.get(0).getBalance(), DELTA);
+    }
+
+    @Test
+    void addDemoDebitAccountsAcceptsBankAccountList() {
+        List<BankAccount> target = new ArrayList<>();
+
+        AccountUtils.addDemoDebitAccounts(target);
+
+        assertEquals(2, target.size());
+    }
+
+    @Test
+    void addDemoDebitAccountsAcceptsObjectList() {
+        List<Object> target = new ArrayList<>();
+
+        AccountUtils.addDemoDebitAccounts(target);
+
+        assertEquals(2, target.size());
     }
 }

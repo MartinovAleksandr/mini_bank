@@ -13,4 +13,9 @@ public final class AccountUtils {
         }
         return total;
     }
+
+    public static void addDemoDebitAccounts(List<? super DebitAccount> target) {
+        target.add(new DebitAccount(new AccountNumber("0000000001"), "Demo1", 1_000));
+        target.add(new DebitAccount(new AccountNumber("0000000002"), "Demo2", 2_000));
+    }
 }
