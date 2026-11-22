@@ -165,6 +165,24 @@ class BankServiceTest {
     }
 
     @Test
+    void numericStreamAggregations() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BankService empty = new BankService(new InMemoryRepository<>(), new TransferService(new NoCommission(), message -> {}));
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
+        DebitAccount a = new DebitAccount(number(1), "A", 100);
+        DebitAccount b = new DebitAccount(number(2), "B", 300);
+        bankService.openAccount(a);
+        bankService.openAccount(b);
+
+        assertEquals(0.0, empty.totalBalance(), 0.0001);
+        assertTrue(empty.averageBalance().isEmpty());
+        assertTrue(empty.richestAccount().isEmpty());
+        assertEquals(400.0, bankService.totalBalance(), 0.0001);
+        assertEquals(200.0, bankService.averageBalance().orElseThrow(), 0.0001);
+        assertSame(b, bankService.richestAccount().orElseThrow());
+    }
+
+    @Test
     void findFirstRichAccountOptional() {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
         BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
