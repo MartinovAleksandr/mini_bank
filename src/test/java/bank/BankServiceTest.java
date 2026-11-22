@@ -2,6 +2,9 @@ package bank;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -117,5 +120,32 @@ class BankServiceTest {
         assertThrows(InsufficientFundsException.class, () -> bankService.transfer(number(1), number(2), 3_000));
         assertEquals(1_000, from.getBalance(), 0.0001);
         assertEquals(1_000, to.getBalance(), 0.0001);
+    }
+
+    @Test
+    void findAccountsSupportsPredicateComposition() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BlockedAccountRegistry blocked = new BlockedAccountRegistry();
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}, blocked));
+        DebitAccount richDebit = new DebitAccount(number(1), "A", 150_000);
+        DebitAccount blockedRichDebit = new DebitAccount(number(2), "B", 200_000);
+        CreditAccount richCredit = new CreditAccount(number(3), "C", 120_000, 0);
+        DebitAccount poorDebit = new DebitAccount(number(4), "D", 10_000);
+        bankService.openAccount(richDebit);
+        bankService.openAccount(blockedRichDebit);
+        bankService.openAccount(richCredit);
+        bankService.openAccount(poorDebit);
+        blocked.block(blockedRichDebit.getNumber());
+
+        Predicate<BankAccount> rich = a -> a.getBalance() >= 100_000;
+        Predicate<BankAccount> notBlocked = a -> !blocked.isBlocked(a.getId());
+        Predicate<BankAccount> debit = DebitAccount.class::isInstance;
+
+        assertEquals(3, bankService.findAccounts(rich).size());
+        assertEquals(3, bankService.findAccounts(notBlocked).size());
+        assertEquals(3, bankService.findAccounts(debit).size());
+        assertEquals(List.of(richDebit), bankService.findAccounts(rich.and(notBlocked).and(debit)));
+        assertEquals(List.of(richCredit), bankService.findAccounts(debit.negate()));
+        assertEquals(3, bankService.findAccounts(rich.or(CreditAccount.class::isInstance)).size());
     }
 }
