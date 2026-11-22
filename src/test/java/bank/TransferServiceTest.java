@@ -3,7 +3,6 @@ package bank;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TransferServiceTest {
@@ -44,9 +43,8 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
-        boolean result = service(new NoCommission()).transfer(from, to, -100);
-
-        assertFalse(result);
+        assertThrows(IllegalArgumentException.class,
+                () -> service(new NoCommission()).transfer(from, to, -100));
         assertEquals(10_000, from.getBalance(), DELTA);
         assertEquals(0, to.getBalance(), DELTA);
     }
@@ -56,9 +54,8 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
-        boolean result = service(new NoCommission()).transfer(from, to, 0);
-
-        assertFalse(result);
+        assertThrows(IllegalArgumentException.class,
+                () -> service(new NoCommission()).transfer(from, to, 0));
         assertEquals(10_000, from.getBalance(), DELTA);
         assertEquals(0, to.getBalance(), DELTA);
     }
@@ -67,9 +64,8 @@ class TransferServiceTest {
     void transferToSameAccountIsRejected() {
         DebitAccount account = new DebitAccount(number(1), "Alice", 10_000);
 
-        boolean result = service(new NoCommission()).transfer(account, account, 1_000);
-
-        assertFalse(result);
+        assertThrows(IllegalArgumentException.class,
+                () -> service(new NoCommission()).transfer(account, account, 1_000));
         assertEquals(10_000, account.getBalance(), DELTA);
     }
 
