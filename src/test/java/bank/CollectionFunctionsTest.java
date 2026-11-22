@@ -2,7 +2,9 @@ package bank;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -61,5 +63,21 @@ class CollectionFunctionsTest {
         assertEquals("DebitAccount", summaries.get(0).type());
         assertEquals(200.0, summaries.get(1).balance(), 0.0001);
         assertEquals("0000000001 : 100.0", labels.get(0));
+    }
+
+    @Test
+    void forEachAppliesConsumerAndSupportsMethodReference() {
+        List<AccountSummary> summaries = List.of(
+                new AccountSummary(number(1), "DebitAccount", 100),
+                new AccountSummary(number(2), "CreditAccount", 200)
+        );
+        List<String> collected = new ArrayList<>();
+        Consumer<AccountSummary> printer = summary -> collected.add(summary.toString());
+
+        CollectionFunctions.forEach(summaries, printer);
+        CollectionFunctions.forEach(summaries, summary -> collected.add(summary.toString()));
+
+        assertEquals(4, collected.size());
+        assertTrue(collected.get(0).contains("DebitAccount"));
     }
 }
