@@ -1,5 +1,8 @@
 package bank;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 public class BankService {
     private final Repository<AccountNumber, BankAccount> accounts;
     private final TransferService transferService;
@@ -25,5 +28,9 @@ public class BankService {
         BankAccount from = accounts.findById(fromNumber);
         BankAccount to = accounts.findById(toNumber);
         transferService.transfer(from, to, amount);
+    }
+
+    public List<BankAccount> findAccounts(Predicate<? super BankAccount> condition) {
+        return CollectionFunctions.filter(accounts.findAll(), condition);
     }
 }
