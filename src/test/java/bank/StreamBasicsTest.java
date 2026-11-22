@@ -34,4 +34,24 @@ class StreamBasicsTest {
 
         assertEquals(loopResult, streamResult);
     }
+
+    @Test
+    void reduceSumMatchesLoop() {
+        List<BankAccount> accounts = List.of(
+                new DebitAccount(number(1), "A", 100),
+                new DebitAccount(number(2), "B", 200),
+                new DebitAccount(number(3), "C", 300)
+        );
+
+        double loopTotal = 0;
+        for (BankAccount a : accounts) {
+            loopTotal += a.getBalance();
+        }
+
+        double reduceTotal = accounts.stream()
+                .map(BankAccount::getBalance)
+                .reduce(0.0, Double::sum);
+
+        assertEquals(loopTotal, reduceTotal, 0.0001);
+    }
 }
