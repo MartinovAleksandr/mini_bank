@@ -2,6 +2,7 @@ package org.example;
 
 import bank.BankAccount;
 import bank.CommissionPolicy;
+import bank.ConsoleNotificationService;
 import bank.CreditAccount;
 import bank.DebitAccount;
 import bank.NoCommission;
@@ -30,7 +31,7 @@ public class Main {
         } else {
             policy = new NoCommission();
         }
-        TransferService transferService = new TransferService(policy);
+        TransferService transferService = new TransferService(policy, new ConsoleNotificationService());
 
         System.out.println("\n=== СОЗДАНИЕ СЧЁТА ===");
         System.out.print("Введите номер счёта: ");

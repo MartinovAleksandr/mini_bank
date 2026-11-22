@@ -3,9 +3,12 @@ package bank;
 public class TransferService {
 
     private final CommissionPolicy commissionPolicy;
+    private final NotificationService notificationService;
 
-    public TransferService(CommissionPolicy commissionPolicy) {
+    public TransferService(CommissionPolicy commissionPolicy,
+                           NotificationService notificationService) {
         this.commissionPolicy = commissionPolicy;
+        this.notificationService = notificationService;
     }
 
     public boolean transfer(BankAccount from, BankAccount to, double amount) {
@@ -25,6 +28,7 @@ public class TransferService {
         }
 
         to.deposit(amount);
+        notificationService.notify("Transfer " + amount + " completed");
         return true;
     }
 }

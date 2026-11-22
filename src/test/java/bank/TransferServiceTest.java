@@ -15,7 +15,7 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount("1", "Alice", 10_000);
         DebitAccount to = new DebitAccount("2", "Bob", 0);
 
-        boolean result = new TransferService(new NoCommission()).transfer(from, to, 5_000);
+        boolean result = new TransferService(new NoCommission(), message -> {}).transfer(from, to, 5_000);
 
         assertTrue(result);
         assertEquals(5_000, from.getBalance(), DELTA);
@@ -27,7 +27,7 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount("1", "Alice", 20_000);
         DebitAccount to = new DebitAccount("2", "Bob", 0);
 
-        boolean result = new TransferService(new PercentCommission(1)).transfer(from, to, 10_000);
+        boolean result = new TransferService(new PercentCommission(1), message -> {}).transfer(from, to, 10_000);
 
         assertTrue(result);
         assertEquals(9_900, from.getBalance(), DELTA);
@@ -39,7 +39,7 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount("1", "Alice", 10_050);
         DebitAccount to = new DebitAccount("2", "Bob", 0);
 
-        boolean result = new TransferService(new PercentCommission(1)).transfer(from, to, 10_000);
+        boolean result = new TransferService(new PercentCommission(1), message -> {}).transfer(from, to, 10_000);
 
         assertFalse(result);
         assertEquals(10_050, from.getBalance(), DELTA);
@@ -50,7 +50,7 @@ class TransferServiceTest {
     void transferToSameAccountRejected() {
         DebitAccount from = new DebitAccount("1", "Alice", 10_000);
 
-        boolean result = new TransferService(new NoCommission()).transfer(from, from, 1_000);
+        boolean result = new TransferService(new NoCommission(), message -> {}).transfer(from, from, 1_000);
 
         assertFalse(result);
         assertEquals(10_000, from.getBalance(), DELTA);
