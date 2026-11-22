@@ -28,6 +28,28 @@ class TransferServiceTest {
     }
 
     @Test
+    void transferWithoutEnoughMoneyThrowsException() {
+        DebitAccount from = new DebitAccount(number(1), "Alice", 1_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 2_000);
+
+        InsufficientFundsException exception = assertThrows(InsufficientFundsException.class,
+                () -> service(new NoCommission()).transfer(from, to, 5_000));
+
+        assertEquals("Insufficient funds", exception.getMessage());
+    }
+
+    @Test
+    void transferOverLimitThrowsException() {
+        DebitAccount from = new DebitAccount(number(1), "Alice", 100_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
+
+        TransferLimitExceededException exception = assertThrows(TransferLimitExceededException.class,
+                () -> service(new NoCommission()).transfer(from, to, 50_001));
+
+        assertEquals("Transfer limit exceeded", exception.getMessage());
+    }
+
+    @Test
     void failedTransferDoesNotChangeBalances() {
         DebitAccount from = new DebitAccount(number(1), "Alice", 1_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 2_000);
@@ -39,7 +61,7 @@ class TransferServiceTest {
     }
 
     @Test
-    void negativeTransferIsRejected() {
+    void negativeTransferThrowsException() {
         DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
@@ -50,7 +72,7 @@ class TransferServiceTest {
     }
 
     @Test
-    void zeroTransferIsRejected() {
+    void zeroTransferThrowsException() {
         DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
@@ -61,7 +83,7 @@ class TransferServiceTest {
     }
 
     @Test
-    void transferToSameAccountIsRejected() {
+    void transferToSameAccountThrowsException() {
         DebitAccount account = new DebitAccount(number(1), "Alice", 10_000);
 
         assertThrows(IllegalArgumentException.class,
