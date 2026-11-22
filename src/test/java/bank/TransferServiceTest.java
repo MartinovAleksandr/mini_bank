@@ -152,4 +152,40 @@ class TransferServiceTest {
         assertEquals(3_000, from.getBalance(), DELTA);
         assertEquals(2_000, to.getBalance(), DELTA);
     }
+
+    @Test
+    void successfulTransferSendsExactlyOneNotification() {
+        DebitAccount from = new DebitAccount("001", "Alice", 10_000);
+        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        FakeNotificationService notificationService = new FakeNotificationService();
+        TransferService transferService = new TransferService(new NoCommission(), notificationService);
+
+        transferService.transfer(from, to, 3_000);
+
+        assertEquals(1, notificationService.getNotificationCount());
+    }
+
+    @Test
+    void failedTransferSendsNoNotification() {
+        DebitAccount from = new DebitAccount("001", "Alice", 1_000);
+        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        FakeNotificationService notificationService = new FakeNotificationService();
+        TransferService transferService = new TransferService(new NoCommission(), notificationService);
+
+        transferService.transfer(from, to, 5_000);
+
+        assertEquals(0, notificationService.getNotificationCount());
+    }
+
+    @Test
+    void notificationMessageMatchesExpected() {
+        DebitAccount from = new DebitAccount("001", "Alice", 10_000);
+        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        FakeNotificationService notificationService = new FakeNotificationService();
+        TransferService transferService = new TransferService(new NoCommission(), notificationService);
+
+        transferService.transfer(from, to, 3_000);
+
+        assertEquals("Transfer 3000.0 completed", notificationService.getLastMessage());
+    }
 }
