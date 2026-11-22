@@ -165,6 +165,37 @@ class BankServiceTest {
     }
 
     @Test
+    void shortCircuitMatchMethods() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BlockedAccountRegistry registry = new BlockedAccountRegistry();
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}, registry), registry);
+        DebitAccount a = new DebitAccount(number(1), "A", 100);
+        DebitAccount b = new DebitAccount(number(2), "B", 200);
+        bankService.openAccount(a);
+        bankService.openAccount(b);
+        registry.block(number(2));
+
+        assertTrue(bankService.hasBlockedAccounts());
+        assertTrue(bankService.allAccountsPositive());
+        assertTrue(bankService.noCreditAccounts());
+        bankService.openAccount(new CreditAccount(number(3), "C", 0, 0));
+        assertFalse(bankService.allAccountsPositive());
+        assertFalse(bankService.noCreditAccounts());
+    }
+
+    @Test
+    void anyMatchShortCircuits() {
+        List<Integer> values = List.of(1, 2, 3, 4, 5);
+        int[] calls = {0};
+        boolean result = values.stream().anyMatch(v -> {
+            calls[0]++;
+            return v == 2;
+        });
+        assertTrue(result);
+        assertEquals(2, calls[0]);
+    }
+
+    @Test
     void sortedStreamMethodsDoNotMutateSource() {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
         BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));

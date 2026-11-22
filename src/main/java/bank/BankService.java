@@ -8,10 +8,17 @@ import java.util.function.Predicate;
 public class BankService {
     private final Repository<AccountNumber, BankAccount> accounts;
     private final TransferService transferService;
+    private final BlockedAccountRegistry blockedAccountRegistry;
 
     public BankService(Repository<AccountNumber, BankAccount> accounts, TransferService transferService) {
+        this(accounts, transferService, null);
+    }
+
+    public BankService(Repository<AccountNumber, BankAccount> accounts, TransferService transferService,
+                       BlockedAccountRegistry blockedAccountRegistry) {
         this.accounts = accounts;
         this.transferService = transferService;
+        this.blockedAccountRegistry = blockedAccountRegistry;
     }
 
     public void openAccount(BankAccount account) {
@@ -90,6 +97,24 @@ public class BankService {
                 .sorted(Comparator.comparing(BankAccount::getOwner)
                         .thenComparing(a -> a.getId().value()))
                 .toList();
+    }
+
+    public boolean hasBlockedAccounts() {
+        if (blockedAccountRegistry == null) {
+            return false;
+        }
+        return accounts.findAll().stream()
+                .anyMatch(a -> blockedAccountRegistry.isBlocked(a.getId()));
+    }
+
+    public boolean allAccountsPositive() {
+        return accounts.findAll().stream()
+                .allMatch(a -> a.getBalance() > 0);
+    }
+
+    public boolean noCreditAccounts() {
+        return accounts.findAll().stream()
+                .noneMatch(CreditAccount.class::isInstance);
     }
 
     private AccountSummary toSummary(BankAccount account) {
