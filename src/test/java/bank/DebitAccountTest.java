@@ -10,16 +10,20 @@ class DebitAccountTest {
 
     private static final double DELTA = 0.0001;
 
+    private static AccountNumber number(int value) {
+        return new AccountNumber(String.format("%010d", value));
+    }
+
     @Test
     void initialBalanceIsPreserved() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         assertEquals(1_000, account.getBalance(), DELTA);
     }
 
     @Test
     void depositIncreasesBalance() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         account.deposit(500);
 
@@ -28,7 +32,7 @@ class DebitAccountTest {
 
     @Test
     void zeroDepositDoesNotChangeBalance() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         account.deposit(0);
 
@@ -37,7 +41,7 @@ class DebitAccountTest {
 
     @Test
     void negativeDepositDoesNotChangeBalance() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         account.deposit(-100);
 
@@ -46,7 +50,7 @@ class DebitAccountTest {
 
     @Test
     void withdrawDecreasesBalance() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         boolean result = account.withdraw(300);
 
@@ -56,7 +60,7 @@ class DebitAccountTest {
 
     @Test
     void cannotWithdrawMoreThanBalance() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         boolean result = account.withdraw(1_500);
 
@@ -66,7 +70,7 @@ class DebitAccountTest {
 
     @Test
     void zeroWithdrawalIsRejected() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         boolean result = account.withdraw(0);
 
@@ -76,7 +80,7 @@ class DebitAccountTest {
 
     @Test
     void negativeWithdrawalIsRejected() {
-        DebitAccount account = new DebitAccount("001", "Ivan", 1_000);
+        DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
         boolean result = account.withdraw(-100);
 

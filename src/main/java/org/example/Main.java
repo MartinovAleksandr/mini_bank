@@ -1,5 +1,6 @@
 package org.example;
 
+import bank.AccountNumber;
 import bank.BankAccount;
 import bank.CommissionPolicy;
 import bank.ConsoleNotificationService;
@@ -34,8 +35,7 @@ public class Main {
         TransferService transferService = new TransferService(policy, new ConsoleNotificationService());
 
         System.out.println("\n=== СОЗДАНИЕ СЧЁТА ===");
-        System.out.print("Введите номер счёта: ");
-        String number = scanner.nextLine();
+        AccountNumber number = readAccountNumber(scanner, "Введите номер счёта: ");
 
         System.out.print("Введите владельца: ");
         String owner = scanner.nextLine();
@@ -97,8 +97,7 @@ public class Main {
             }
             else if (choice == 4){
                 System.out.println("--- Создание счёта получателя ---");
-                System.out.print("Введите номер счёта получателя: ");
-                String toNumber = scanner.nextLine();
+                AccountNumber toNumber = readAccountNumber(scanner, "Введите номер счёта получателя: ");
                 if (toNumber.equals(account.getNumber())) {
                     System.out.println("Ошибка: нельзя перевести на тот же самый счёт.");
                     continue;
@@ -128,6 +127,17 @@ public class Main {
             }
             else{
                 System.out.println("Нет такого пункта.");
+            }
+        }
+    }
+
+    private static AccountNumber readAccountNumber(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            try {
+                return new AccountNumber(scanner.nextLine().trim());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Ошибка: номер счёта должен состоять из 10 цифр.");
             }
         }
     }

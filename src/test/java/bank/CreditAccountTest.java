@@ -10,9 +10,13 @@ class CreditAccountTest {
 
     private static final double DELTA = 0.0001;
 
+    private static AccountNumber number(int value) {
+        return new AccountNumber(String.format("%010d", value));
+    }
+
     @Test
     void accountCanGoNegative() {
-        CreditAccount account = new CreditAccount("003", "Ivan", 1_000, 5_000);
+        CreditAccount account = new CreditAccount(number(3), "Ivan", 1_000, 5_000);
 
         boolean result = account.withdraw(1_500);
 
@@ -22,7 +26,7 @@ class CreditAccountTest {
 
     @Test
     void creditLimitCanBeUsed() {
-        CreditAccount account = new CreditAccount("003", "Ivan", 1_000, 5_000);
+        CreditAccount account = new CreditAccount(number(3), "Ivan", 1_000, 5_000);
 
         boolean result = account.withdraw(6_000);
 
@@ -32,7 +36,7 @@ class CreditAccountTest {
 
     @Test
     void creditLimitCannotBeExceeded() {
-        CreditAccount account = new CreditAccount("003", "Ivan", 1_000, 5_000);
+        CreditAccount account = new CreditAccount(number(3), "Ivan", 1_000, 5_000);
 
         boolean result = account.withdraw(6_001);
 
@@ -42,7 +46,7 @@ class CreditAccountTest {
 
     @Test
     void failedWithdrawalDoesNotChangeBalance() {
-        CreditAccount account = new CreditAccount("003", "Ivan", 1_000, 5_000);
+        CreditAccount account = new CreditAccount(number(3), "Ivan", 1_000, 5_000);
 
         account.withdraw(10_000);
 

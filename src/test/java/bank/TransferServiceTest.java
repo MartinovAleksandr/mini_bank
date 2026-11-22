@@ -10,14 +10,18 @@ class TransferServiceTest {
 
     private static final double DELTA = 0.0001;
 
+    private static AccountNumber number(int value) {
+        return new AccountNumber(String.format("%010d", value));
+    }
+
     private static TransferService service(CommissionPolicy policy) {
         return new TransferService(policy, message -> {});
     }
 
     @Test
     void successfulTransferChangesBothBalances() {
-        DebitAccount from = new DebitAccount("001", "Alice", 10_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 1_000);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 1_000);
 
         boolean result = service(new NoCommission()).transfer(from, to, 3_000);
 
@@ -28,8 +32,8 @@ class TransferServiceTest {
 
     @Test
     void failedTransferDoesNotChangeBalances() {
-        DebitAccount from = new DebitAccount("001", "Alice", 1_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 2_000);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 1_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 2_000);
 
         boolean result = service(new NoCommission()).transfer(from, to, 5_000);
 
@@ -40,8 +44,8 @@ class TransferServiceTest {
 
     @Test
     void negativeTransferIsRejected() {
-        DebitAccount from = new DebitAccount("001", "Alice", 10_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
         boolean result = service(new NoCommission()).transfer(from, to, -100);
 
@@ -52,8 +56,8 @@ class TransferServiceTest {
 
     @Test
     void zeroTransferIsRejected() {
-        DebitAccount from = new DebitAccount("001", "Alice", 10_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
         boolean result = service(new NoCommission()).transfer(from, to, 0);
 
@@ -64,7 +68,7 @@ class TransferServiceTest {
 
     @Test
     void transferToSameAccountIsRejected() {
-        DebitAccount account = new DebitAccount("001", "Alice", 10_000);
+        DebitAccount account = new DebitAccount(number(1), "Alice", 10_000);
 
         boolean result = service(new NoCommission()).transfer(account, account, 1_000);
 
@@ -74,8 +78,8 @@ class TransferServiceTest {
 
     @Test
     void commissionIsChargedToSender() {
-        DebitAccount from = new DebitAccount("001", "Alice", 20_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 20_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
         boolean result = service(new PercentCommission(1)).transfer(from, to, 10_000);
 
@@ -85,8 +89,8 @@ class TransferServiceTest {
 
     @Test
     void recipientReceivesExactTransferAmount() {
-        DebitAccount from = new DebitAccount("001", "Alice", 20_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 20_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
         service(new PercentCommission(1)).transfer(from, to, 10_000);
 
@@ -95,8 +99,8 @@ class TransferServiceTest {
 
     @Test
     void transferIsRejectedWhenCommissionCannotBePaid() {
-        DebitAccount from = new DebitAccount("001", "Alice", 10_050);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_050);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
         boolean result = service(new PercentCommission(1)).transfer(from, to, 10_000);
 
@@ -107,8 +111,8 @@ class TransferServiceTest {
 
     @Test
     void debitToDebitTransfer() {
-        DebitAccount from = new DebitAccount("001", "Alice", 5_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 1_000);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 5_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 1_000);
 
         boolean result = service(new NoCommission()).transfer(from, to, 2_000);
 
@@ -119,8 +123,8 @@ class TransferServiceTest {
 
     @Test
     void debitToSavingsTransfer() {
-        DebitAccount from = new DebitAccount("001", "Alice", 5_000);
-        SavingsAccount to = new SavingsAccount("002", "Bob", 1_000, 500);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 5_000);
+        SavingsAccount to = new SavingsAccount(number(2), "Bob", 1_000, 500);
 
         boolean result = service(new NoCommission()).transfer(from, to, 2_000);
 
@@ -131,8 +135,8 @@ class TransferServiceTest {
 
     @Test
     void creditToDebitTransfer() {
-        CreditAccount from = new CreditAccount("001", "Alice", 1_000, 5_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        CreditAccount from = new CreditAccount(number(1), "Alice", 1_000, 5_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
         boolean result = service(new NoCommission()).transfer(from, to, 2_000);
 
@@ -143,8 +147,8 @@ class TransferServiceTest {
 
     @Test
     void savingsToDebitTransfer() {
-        SavingsAccount from = new SavingsAccount("001", "Alice", 5_000, 1_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        SavingsAccount from = new SavingsAccount(number(1), "Alice", 5_000, 1_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
         boolean result = service(new NoCommission()).transfer(from, to, 2_000);
 
@@ -155,8 +159,8 @@ class TransferServiceTest {
 
     @Test
     void successfulTransferSendsExactlyOneNotification() {
-        DebitAccount from = new DebitAccount("001", "Alice", 10_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
         FakeNotificationService notificationService = new FakeNotificationService();
         TransferService transferService = new TransferService(new NoCommission(), notificationService);
 
@@ -167,8 +171,8 @@ class TransferServiceTest {
 
     @Test
     void failedTransferSendsNoNotification() {
-        DebitAccount from = new DebitAccount("001", "Alice", 1_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 1_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
         FakeNotificationService notificationService = new FakeNotificationService();
         TransferService transferService = new TransferService(new NoCommission(), notificationService);
 
@@ -179,8 +183,8 @@ class TransferServiceTest {
 
     @Test
     void notificationMessageMatchesExpected() {
-        DebitAccount from = new DebitAccount("001", "Alice", 10_000);
-        DebitAccount to = new DebitAccount("002", "Bob", 0);
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 0);
         FakeNotificationService notificationService = new FakeNotificationService();
         TransferService transferService = new TransferService(new NoCommission(), notificationService);
 

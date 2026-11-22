@@ -3,11 +3,11 @@ package bank;
 import java.util.Objects;
 
 public abstract class BankAccount {
-    private final String number;
+    private final AccountNumber number;
     private final String owner;
     private double balance;
 
-    protected BankAccount(String number, String owner, double initialBalance) {
+    protected BankAccount(AccountNumber number, String owner, double initialBalance) {
         if (initialBalance < 0) {
             throw new IllegalArgumentException("Начальный баланс не может быть отрицательным");
         }
@@ -25,7 +25,7 @@ public abstract class BankAccount {
     public abstract boolean withdraw(double amount);
 
     public double getBalance() { return balance; }
-    public String getNumber() { return number; }
+    public AccountNumber getNumber() { return number; }
     public String getOwner() { return owner; }
 
     // --- Методы, доступные только наследникам (protected) ---

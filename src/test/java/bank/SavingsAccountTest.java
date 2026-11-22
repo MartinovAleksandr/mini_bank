@@ -10,9 +10,13 @@ class SavingsAccountTest {
 
     private static final double DELTA = 0.0001;
 
+    private static AccountNumber number(int value) {
+        return new AccountNumber(String.format("%010d", value));
+    }
+
     @Test
     void canWithdrawWhenMinimumBalanceIsPreserved() {
-        SavingsAccount account = new SavingsAccount("002", "Ivan", 1_000, 200);
+        SavingsAccount account = new SavingsAccount(number(2), "Ivan", 1_000, 200);
 
         boolean result = account.withdraw(700);
 
@@ -22,7 +26,7 @@ class SavingsAccountTest {
 
     @Test
     void cannotWithdrawBelowMinimumBalance() {
-        SavingsAccount account = new SavingsAccount("002", "Ivan", 1_000, 200);
+        SavingsAccount account = new SavingsAccount(number(2), "Ivan", 1_000, 200);
 
         boolean result = account.withdraw(900);
 
@@ -32,7 +36,7 @@ class SavingsAccountTest {
 
     @Test
     void failedWithdrawalDoesNotChangeBalance() {
-        SavingsAccount account = new SavingsAccount("002", "Ivan", 1_000, 200);
+        SavingsAccount account = new SavingsAccount(number(2), "Ivan", 1_000, 200);
 
         account.withdraw(5_000);
 
