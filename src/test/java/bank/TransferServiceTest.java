@@ -207,5 +207,20 @@ class TransferServiceTest {
 
         assertEquals("Transfer 3000.0 completed", notificationService.getLastMessage());
     }
+
+    @Test
+    void transferFromBlockedAccountThrowsAndDoesNotChangeBalances() {
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 1_000);
+        BlockedAccountRegistry registry = new BlockedAccountRegistry();
+        registry.block(from.getNumber());
+        FakeNotificationService notificationService = new FakeNotificationService();
+        TransferService transferService = new TransferService(new NoCommission(), notificationService, registry);
+
+        assertThrows(IllegalStateException.class, () -> transferService.transfer(from, to, 3_000));
+        assertEquals(10_000, from.getBalance(), DELTA);
+        assertEquals(1_000, to.getBalance(), DELTA);
+        assertEquals(0, notificationService.getNotificationCount());
+    }
 }
 

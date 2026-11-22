@@ -6,11 +6,19 @@ public class TransferService {
 
     private final CommissionPolicy commissionPolicy;
     private final NotificationService notificationService;
+    private final BlockedAccountRegistry blockedAccountRegistry;
 
     public TransferService(CommissionPolicy commissionPolicy,
                            NotificationService notificationService) {
+        this(commissionPolicy, notificationService, null);
+    }
+
+    public TransferService(CommissionPolicy commissionPolicy,
+                           NotificationService notificationService,
+                           BlockedAccountRegistry blockedAccountRegistry) {
         this.commissionPolicy = commissionPolicy;
         this.notificationService = notificationService;
+        this.blockedAccountRegistry = blockedAccountRegistry;
     }
 
     public void transfer(BankAccount from, BankAccount to, double amount) {
@@ -22,6 +30,9 @@ public class TransferService {
         }
         if (amount > TRANSFER_LIMIT) {
             throw new TransferLimitExceededException("Transfer limit exceeded");
+        }
+        if (blockedAccountRegistry != null && blockedAccountRegistry.isBlocked(from.getNumber())) {
+            throw new IllegalStateException("Source account is blocked");
         }
 
         double commission = commissionPolicy.calculate(amount);
