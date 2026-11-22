@@ -2,6 +2,7 @@ package bank;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -120,6 +121,32 @@ class BankServiceTest {
         assertThrows(InsufficientFundsException.class, () -> bankService.transfer(number(1), number(2), 3_000));
         assertEquals(1_000, from.getBalance(), 0.0001);
         assertEquals(1_000, to.getBalance(), 0.0001);
+    }
+
+    @Test
+    void sortedAccountsReturnsSortedCopyWithoutMutatingRepository() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
+        BankAccount a = new DebitAccount(number(3), "C", 300);
+        BankAccount b = new CreditAccount(number(1), "A", 100, 0);
+        BankAccount c = new DebitAccount(number(2), "B", 200);
+        bankService.openAccount(a);
+        bankService.openAccount(b);
+        bankService.openAccount(c);
+
+        List<BankAccount> original = repository.findAll();
+        List<BankAccount> byBalance = bankService.sortedAccounts(Comparator.comparingDouble(BankAccount::getBalance));
+        List<BankAccount> byBalanceDesc = bankService.sortedAccounts(Comparator.comparingDouble(BankAccount::getBalance).reversed());
+        List<BankAccount> byNumber = bankService.sortedAccounts(Comparator.comparing(acc -> acc.getId().value()));
+        List<BankAccount> byTypeThenBalance = bankService.sortedAccounts(
+                Comparator.comparing((BankAccount acc) -> acc.getClass().getSimpleName())
+                        .thenComparingDouble(BankAccount::getBalance));
+
+        assertEquals(List.of(b, c, a), byBalance);
+        assertEquals(List.of(a, c, b), byBalanceDesc);
+        assertEquals(List.of(b, c, a), byNumber);
+        assertEquals(List.of(b, c, a), byTypeThenBalance);
+        assertEquals(original, repository.findAll());
     }
 
     @Test
