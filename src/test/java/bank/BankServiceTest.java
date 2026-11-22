@@ -165,6 +165,25 @@ class BankServiceTest {
     }
 
     @Test
+    void sortedStreamMethodsDoNotMutateSource() {
+        Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
+        BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));
+        BankAccount a = new DebitAccount(number(3), "Charlie", 300);
+        BankAccount b = new CreditAccount(number(1), "Alice", 100, 0);
+        BankAccount c = new DebitAccount(number(2), "Bob", 200);
+        bankService.openAccount(a);
+        bankService.openAccount(b);
+        bankService.openAccount(c);
+        List<BankAccount> original = repository.findAll();
+
+        assertEquals(List.of(a, c, b), bankService.richestFirst());
+        assertEquals(List.of(b, c, a), bankService.sortedByNumber());
+        assertEquals(List.of(b, c, a), bankService.sortedByTypeThenBalance());
+        assertEquals(List.of(b, c, a), bankService.sortedByOwnerThenNumber());
+        assertEquals(original, repository.findAll());
+    }
+
+    @Test
     void streamFilterMethodsReturnMatchingAccounts() {
         Repository<AccountNumber, BankAccount> repository = new InMemoryRepository<>();
         BankService bankService = new BankService(repository, new TransferService(new NoCommission(), message -> {}));

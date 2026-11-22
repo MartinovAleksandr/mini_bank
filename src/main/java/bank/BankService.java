@@ -66,6 +66,32 @@ public class BankService {
                 .toList();
     }
 
+    public List<BankAccount> richestFirst() {
+        return accounts.findAll().stream()
+                .sorted(Comparator.comparingDouble(BankAccount::getBalance).reversed())
+                .toList();
+    }
+
+    public List<BankAccount> sortedByNumber() {
+        return accounts.findAll().stream()
+                .sorted(Comparator.comparing(a -> a.getId().value()))
+                .toList();
+    }
+
+    public List<BankAccount> sortedByTypeThenBalance() {
+        return accounts.findAll().stream()
+                .sorted(Comparator.comparing((BankAccount a) -> a.getClass().getSimpleName())
+                        .thenComparingDouble(BankAccount::getBalance))
+                .toList();
+    }
+
+    public List<BankAccount> sortedByOwnerThenNumber() {
+        return accounts.findAll().stream()
+                .sorted(Comparator.comparing(BankAccount::getOwner)
+                        .thenComparing(a -> a.getId().value()))
+                .toList();
+    }
+
     private AccountSummary toSummary(BankAccount account) {
         return new AccountSummary(account.getId(), account.getClass().getSimpleName(), account.getBalance());
     }
