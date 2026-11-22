@@ -1,8 +1,11 @@
 package org.example;
 
 import bank.BankAccount;
+import bank.CommissionPolicy;
 import bank.CreditAccount;
 import bank.DebitAccount;
+import bank.NoCommission;
+import bank.PercentCommission;
 import bank.SavingsAccount;
 import bank.TransferService;
 
@@ -13,7 +16,23 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("=== МИНИ-БАНК ===");
+        System.out.println("=== НАСТРОЙКА БАНКА ===");
+        System.out.println("Выберите политику комиссии за перевод:");
+        System.out.println("1 - Без комиссии");
+        System.out.println("2 - Процентная комиссия");
+        int commType = readInt(scanner);
+
+        CommissionPolicy policy;
+        if (commType == 2) {
+            System.out.print("Введите процент комиссии (например, 1 для 1%): ");
+            double percent = readDouble(scanner);
+            policy = new PercentCommission(percent);
+        } else {
+            policy = new NoCommission();
+        }
+        TransferService transferService = new TransferService(policy);
+
+        System.out.println("\n=== СОЗДАНИЕ СЧЁТА ===");
         System.out.print("Введите номер счёта: ");
         String number = scanner.nextLine();
 
@@ -45,14 +64,12 @@ public class Main {
         System.out.println("\nСчёт создан: " + account.getOwner()
                 + " | Баланс: " + account.getBalance());
 
-        TransferService transferService = new TransferService();
-
         while (true) {
             System.out.println("\n--- МЕНЮ ---");
             System.out.println("1. Пополнить (deposit)");
             System.out.println("2. Снять (withdraw)");
             System.out.println("3. Показать баланс");
-            System.out.println("4. Сделать перевод (transfer)"); // НОВОЕ
+            System.out.println("4. Сделать перевод (transfer)");
             System.out.println("0. Выход");
             System.out.print("Выбор: ");
 
@@ -78,7 +95,6 @@ public class Main {
                 System.out.println("Текущий баланс: " + account.getBalance());
             }
             else if (choice == 4){
-                // Для простоты создадим получателя прямо здесь
                 System.out.println("--- Создание счёта получателя ---");
                 System.out.print("Введите номер счёта получателя: ");
                 String toNumber = scanner.nextLine();
@@ -89,15 +105,16 @@ public class Main {
 
                 System.out.print("Введите имя получателя: ");
                 String toOwner = scanner.nextLine();
-                // Создадим обычный дебетовый счёт для получателя с балансом 0
                 BankAccount toAccount = new DebitAccount(toNumber, toOwner, 0);
 
                 System.out.print("Сумма перевода: ");
                 double amount = readDouble(scanner);
 
+                double balanceBeforeTransfer = account.getBalance();
                 boolean success = transferService.transfer(account, toAccount, amount);
                 if (success) {
                     System.out.println("Перевод успешно выполнен!");
+                    System.out.println("Списано со счёта (с учётом комиссии): " + (balanceBeforeTransfer - account.getBalance()));
                     System.out.println("Ваш новый баланс: " + account.getBalance());
                     System.out.println("Баланс получателя (" + toOwner + "): " + toAccount.getBalance());
                 } else {
