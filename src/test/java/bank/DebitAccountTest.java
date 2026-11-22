@@ -3,9 +3,7 @@ package bank;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DebitAccountTest {
 
@@ -51,9 +49,8 @@ class DebitAccountTest {
     void withdrawDecreasesBalance() {
         DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
-        boolean result = account.withdraw(300);
+        account.withdraw(300);
 
-        assertTrue(result);
         assertEquals(700, account.getBalance(), DELTA);
     }
 
@@ -61,29 +58,23 @@ class DebitAccountTest {
     void cannotWithdrawMoreThanBalance() {
         DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
-        boolean result = account.withdraw(1_500);
-
-        assertFalse(result);
+        assertThrows(InsufficientFundsException.class, () -> account.withdraw(1_500));
         assertEquals(1_000, account.getBalance(), DELTA);
     }
 
     @Test
-    void zeroWithdrawalIsRejected() {
+    void zeroWithdrawalThrowsException() {
         DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
-        boolean result = account.withdraw(0);
-
-        assertFalse(result);
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(0));
         assertEquals(1_000, account.getBalance(), DELTA);
     }
 
     @Test
-    void negativeWithdrawalIsRejected() {
+    void negativeWithdrawalThrowsException() {
         DebitAccount account = new DebitAccount(number(1), "Ivan", 1_000);
 
-        boolean result = account.withdraw(-100);
-
-        assertFalse(result);
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(-100));
         assertEquals(1_000, account.getBalance(), DELTA);
     }
 }

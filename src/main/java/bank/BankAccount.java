@@ -23,7 +23,7 @@ public abstract class BankAccount {
         increaseBalance(amount);
     }
 
-    public abstract boolean withdraw(double amount);
+    public abstract void withdraw(double amount);
 
     public double getBalance() { return balance; }
     public AccountNumber getNumber() { return number; }

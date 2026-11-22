@@ -13,21 +13,21 @@ public class CreditAccount extends BankAccount {
 
     @Override
     protected boolean canWithdraw(double amount) {
-        // Снять можно, если сумма валидна и итоговый баланс не упадет ниже -creditLimit
         return isValidAmount(amount) && (getBalance() - amount >= -creditLimit);
     }
 
     @Override
-    public boolean withdraw(double amount) {
+    public void withdraw(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
         if (!canWithdraw(amount)) {
-            return false;
+            throw new InsufficientFundsException("Insufficient funds");
         }
         decreaseBalance(amount);
-        return true;
     }
 
     public double getCreditLimit() {
         return creditLimit;
     }
 }
-

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TransferServiceTest {
 
@@ -23,9 +23,7 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 1_000);
 
-        boolean result = service(new NoCommission()).transfer(from, to, 3_000);
-
-        assertTrue(result);
+        service(new NoCommission()).transfer(from, to, 3_000);
         assertEquals(7_000, from.getBalance(), DELTA);
         assertEquals(4_000, to.getBalance(), DELTA);
     }
@@ -35,9 +33,8 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 1_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 2_000);
 
-        boolean result = service(new NoCommission()).transfer(from, to, 5_000);
-
-        assertFalse(result);
+        assertThrows(InsufficientFundsException.class,
+                () -> service(new NoCommission()).transfer(from, to, 5_000));
         assertEquals(1_000, from.getBalance(), DELTA);
         assertEquals(2_000, to.getBalance(), DELTA);
     }
@@ -81,9 +78,7 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 20_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
-        boolean result = service(new PercentCommission(1)).transfer(from, to, 10_000);
-
-        assertTrue(result);
+        service(new PercentCommission(1)).transfer(from, to, 10_000);
         assertEquals(9_900, from.getBalance(), DELTA);
     }
 
@@ -102,9 +97,8 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 10_050);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
-        boolean result = service(new PercentCommission(1)).transfer(from, to, 10_000);
-
-        assertFalse(result);
+        assertThrows(InsufficientFundsException.class,
+                () -> service(new PercentCommission(1)).transfer(from, to, 10_000));
         assertEquals(10_050, from.getBalance(), DELTA);
         assertEquals(0, to.getBalance(), DELTA);
     }
@@ -114,9 +108,7 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 5_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 1_000);
 
-        boolean result = service(new NoCommission()).transfer(from, to, 2_000);
-
-        assertTrue(result);
+        service(new NoCommission()).transfer(from, to, 2_000);
         assertEquals(3_000, from.getBalance(), DELTA);
         assertEquals(3_000, to.getBalance(), DELTA);
     }
@@ -126,9 +118,7 @@ class TransferServiceTest {
         DebitAccount from = new DebitAccount(number(1), "Alice", 5_000);
         SavingsAccount to = new SavingsAccount(number(2), "Bob", 1_000, 500);
 
-        boolean result = service(new NoCommission()).transfer(from, to, 2_000);
-
-        assertTrue(result);
+        service(new NoCommission()).transfer(from, to, 2_000);
         assertEquals(3_000, from.getBalance(), DELTA);
         assertEquals(3_000, to.getBalance(), DELTA);
     }
@@ -138,9 +128,7 @@ class TransferServiceTest {
         CreditAccount from = new CreditAccount(number(1), "Alice", 1_000, 5_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
-        boolean result = service(new NoCommission()).transfer(from, to, 2_000);
-
-        assertTrue(result);
+        service(new NoCommission()).transfer(from, to, 2_000);
         assertEquals(-1_000, from.getBalance(), DELTA);
         assertEquals(2_000, to.getBalance(), DELTA);
     }
@@ -150,9 +138,7 @@ class TransferServiceTest {
         SavingsAccount from = new SavingsAccount(number(1), "Alice", 5_000, 1_000);
         DebitAccount to = new DebitAccount(number(2), "Bob", 0);
 
-        boolean result = service(new NoCommission()).transfer(from, to, 2_000);
-
-        assertTrue(result);
+        service(new NoCommission()).transfer(from, to, 2_000);
         assertEquals(3_000, from.getBalance(), DELTA);
         assertEquals(2_000, to.getBalance(), DELTA);
     }
@@ -176,8 +162,8 @@ class TransferServiceTest {
         FakeNotificationService notificationService = new FakeNotificationService();
         TransferService transferService = new TransferService(new NoCommission(), notificationService);
 
-        transferService.transfer(from, to, 5_000);
-
+        assertThrows(InsufficientFundsException.class,
+                () -> transferService.transfer(from, to, 5_000));
         assertEquals(0, notificationService.getNotificationCount());
     }
 
@@ -193,3 +179,4 @@ class TransferServiceTest {
         assertEquals("Transfer 3000.0 completed", notificationService.getLastMessage());
     }
 }
+

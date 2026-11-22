@@ -23,9 +23,7 @@ public class TransferService {
         double commission = commissionPolicy.calculate(amount);
         double totalWithdrawal = amount + commission;
 
-        if (!from.withdraw(totalWithdrawal)) {
-            return false;
-        }
+        from.withdraw(totalWithdrawal);
 
         to.deposit(amount);
         notificationService.notify("Transfer " + amount + " completed");

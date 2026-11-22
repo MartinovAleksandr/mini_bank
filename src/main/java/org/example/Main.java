@@ -6,9 +6,11 @@ import bank.CommissionPolicy;
 import bank.ConsoleNotificationService;
 import bank.CreditAccount;
 import bank.DebitAccount;
+import bank.InsufficientFundsException;
 import bank.NoCommission;
 import bank.PercentCommission;
 import bank.SavingsAccount;
+import bank.TransferLimitExceededException;
 import bank.TransferService;
 
 import java.util.Scanner;
@@ -89,11 +91,12 @@ public class Main {
             else if (choice == 2){
                 System.out.print("Сумма для снятия: ");
                 double wd = readDouble(scanner);
-                boolean ok = account.withdraw(wd);
-                if (ok) {
+                try {
+                    account.withdraw(wd);
                     System.out.println("Успешно. Новый баланс: " + account.getBalance());
-                } else {
-                    System.out.println("Отказано. Баланс не изменился: " + account.getBalance());
+                } catch (IllegalArgumentException | InsufficientFundsException e) {
+                    System.out.println("Отказано: " + e.getMessage()
+                            + ". Баланс не изменился: " + account.getBalance());
                 }
             }
             else if (choice == 3){
@@ -114,15 +117,20 @@ public class Main {
                 System.out.print("Сумма перевода: ");
                 double amount = readDouble(scanner);
 
-                double balanceBeforeTransfer = account.getBalance();
-                boolean success = transferService.transfer(account, toAccount, amount);
-                if (success) {
-                    System.out.println("Перевод успешно выполнен!");
-                    System.out.println("Списано со счёта (с учётом комиссии): " + (balanceBeforeTransfer - account.getBalance()));
-                    System.out.println("Ваш новый баланс: " + account.getBalance());
-                    System.out.println("Баланс получателя (" + toOwner + "): " + toAccount.getBalance());
-                } else {
-                    System.out.println("Перевод не удался (недостаточно средств или неверная сумма).");
+                try {
+                    double balanceBeforeTransfer = account.getBalance();
+                    boolean success = transferService.transfer(account, toAccount, amount);
+                    if (success) {
+                        System.out.println("Перевод успешно выполнен!");
+                        System.out.println("Списано со счёта (с учётом комиссии): " + (balanceBeforeTransfer - account.getBalance()));
+                        System.out.println("Ваш новый баланс: " + account.getBalance());
+                        System.out.println("Баланс получателя (" + toOwner + "): " + toAccount.getBalance());
+                    } else {
+                        System.out.println("Перевод не удался (недостаточно средств или неверная сумма).");
+                    }
+                } catch (IllegalArgumentException | InsufficientFundsException
+                         | TransferLimitExceededException e) {
+                    System.out.println("Перевод не удался: " + e.getMessage());
                 }
             }
             else if (choice == 0){

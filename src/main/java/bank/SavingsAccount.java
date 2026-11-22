@@ -18,9 +18,13 @@ public class SavingsAccount extends BankAccount {
     }
 
     @Override
-    public boolean withdraw(double amount) {
-        if (!canWithdraw(amount)) return false;
+    public void withdraw(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+        if (!canWithdraw(amount)) {
+            throw new InsufficientFundsException("Insufficient funds");
+        }
         decreaseBalance(amount);
-        return true;
     }
 }
