@@ -222,5 +222,22 @@ class TransferServiceTest {
         assertEquals(1_000, to.getBalance(), DELTA);
         assertEquals(0, notificationService.getNotificationCount());
     }
+
+    @Test
+    void successfulTransferIsRecordedInJournal() {
+        DebitAccount from = new DebitAccount(number(1), "Alice", 10_000);
+        DebitAccount to = new DebitAccount(number(2), "Bob", 1_000);
+        TransactionJournal journal = new TransactionJournal();
+        TransferService transferService = new TransferService(new NoCommission(), message -> {}, null, journal);
+
+        transferService.transfer(from, to, 3_000);
+
+        assertEquals(1, journal.size());
+        Transaction tx = journal.findAll().get(0);
+        assertEquals(TransactionType.TRANSFER, tx.type());
+        assertEquals(from.getNumber(), tx.account());
+        assertEquals(3_000, tx.amount(), DELTA);
+        assertEquals(TransactionStatus.SUCCESS, tx.status());
+    }
 }
 
