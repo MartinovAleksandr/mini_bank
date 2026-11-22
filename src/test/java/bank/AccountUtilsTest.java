@@ -61,4 +61,42 @@ class AccountUtilsTest {
 
         assertEquals(2, target.size());
     }
+
+    @Test
+    void copyDebitAccountsToBankAccountList() {
+        List<DebitAccount> source = List.of(
+                new DebitAccount(number(1), "Ivan", 1_000),
+                new DebitAccount(number(2), "Petr", 2_000));
+        List<BankAccount> target = new ArrayList<>();
+
+        AccountUtils.copy(source, target);
+
+        assertEquals(2, target.size());
+        assertEquals(source.get(0), target.get(0));
+        assertEquals(source.get(1), target.get(1));
+    }
+
+    @Test
+    void copyDebitAccountsToObjectList() {
+        List<DebitAccount> source = List.of(new DebitAccount(number(1), "Ivan", 1_000));
+        List<Object> target = new ArrayList<>();
+
+        AccountUtils.copy(source, target);
+
+        assertEquals(1, target.size());
+        assertEquals(source.get(0), target.get(0));
+    }
+
+    @Test
+    void copyBankAccountsToBankAccountListPreservesOrder() {
+        List<BankAccount> source = List.of(
+                new DebitAccount(number(1), "Ivan", 1_000),
+                new SavingsAccount(number(2), "Petr", 2_000, 100),
+                new CreditAccount(number(3), "Anna", 500, 1_000));
+        List<BankAccount> target = new ArrayList<>();
+
+        AccountUtils.copy(source, target);
+
+        assertEquals(source, target);
+    }
 }

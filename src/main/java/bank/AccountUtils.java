@@ -18,4 +18,10 @@ public final class AccountUtils {
         target.add(new DebitAccount(new AccountNumber("0000000001"), "Demo1", 1_000));
         target.add(new DebitAccount(new AccountNumber("0000000002"), "Demo2", 2_000));
     }
+
+    public static <T> void copy(List<? extends T> source, List<? super T> target) {
+        for (T value : source) {
+            target.add(value);
+        }
+    }
 }
