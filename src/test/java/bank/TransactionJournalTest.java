@@ -67,4 +67,23 @@ class TransactionJournalTest {
         assertSame(success, all.get(0));
         assertSame(success2, all.get(1));
     }
+
+    @Test
+    void findByAccountReturnsMatchingTransactionsInOrder() {
+        TransactionJournal journal = new TransactionJournal();
+        AccountNumber a1 = number(1);
+        AccountNumber a2 = number(2);
+        Transaction t1 = new Transaction(1L, TransactionType.TRANSFER, a1, 100, TransactionStatus.SUCCESS);
+        Transaction t2 = new Transaction(2L, TransactionType.TRANSFER, a2, 200, TransactionStatus.SUCCESS);
+        Transaction t3 = new Transaction(3L, TransactionType.WITHDRAWAL, a1, 50, TransactionStatus.SUCCESS);
+        journal.add(t1);
+        journal.add(t2);
+        journal.add(t3);
+
+        List<Transaction> result = journal.findByAccount(a1);
+
+        assertEquals(2, result.size());
+        assertSame(t1, result.get(0));
+        assertSame(t3, result.get(1));
+    }
 }
